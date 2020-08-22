@@ -1,3 +1,11 @@
+This is just a fork of KSPTrajectories with some changes.
+
+Currently add theses features:
+------------------------------
+
+- Calculate multiple vessels trajectory (Flight/Map overlays and APIs)
+- Custom acceleration handlers through the API (Simulate burn in trajectory)
+
 Trajectories
 ============
 
