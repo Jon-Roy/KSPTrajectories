@@ -97,11 +97,6 @@ namespace Trajectories
             MainGUI.Update();
         }
 
-        private void OnGUI()
-        {
-            GUI.Label(new Rect(5, 35, 400, 50), "LoadedVesselsTrajectories: " + LoadedVesselsTrajectories.Count);
-        }
-
 #if DEBUG_TELEMETRY
         internal void FixedUpdate() => Trajectory.DebugTelemetry();
 #endif
