@@ -106,7 +106,8 @@ namespace Trajectories
                     auto_icon_texture.LoadImage(File.ReadAllBytes(TrajTexturePath + "iconAuto.png"));
                 }
 
-                GameEvents.onGUIApplicationLauncherReady.Add(CreateStockToolbarButton);
+                // ReSharper disable once ConvertClosureToMethodGroup
+                GameEvents.onGUIApplicationLauncherReady.Add(delegate { CreateStockToolbarButton(); });
                 GameEvents.onGUIApplicationLauncherUnreadifying.Add(delegate { DestroyStockToolbarButton(); });
             }
             else
