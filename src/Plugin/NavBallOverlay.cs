@@ -37,7 +37,7 @@ namespace Trajectories
         private Texture2D guide_texture;
         private Texture2D reference_texture;
 
-        private bool constructed;
+        private readonly bool constructed;
 
         private NavBall navball;
         private Transform guide_transform;
@@ -59,7 +59,7 @@ namespace Trajectories
         private bool TransformsAllocated => guide_transform != null && reference_transform != null;
         private bool RenderersAllocated => guide_renderer != null && reference_renderer != null;
 
-        internal bool Ready => (TexturesAllocated && TransformsAllocated && RenderersAllocated && navball != null);
+        internal bool Ready => TexturesAllocated && TransformsAllocated && RenderersAllocated && navball != null;
 
         internal Vector3d? PlannedDirection => reference;
 
@@ -173,7 +173,8 @@ namespace Trajectories
 
             SetDisplayEnabled(true);
 
-            guide_transform.gameObject.transform.localPosition = navball.attitudeGymbal * (CorrectedDirection.Value * navball.VectorUnitScale);
+            if (CorrectedDirection != null)
+                guide_transform.gameObject.transform.localPosition = navball.attitudeGymbal * (CorrectedDirection.Value * navball.VectorUnitScale);
             reference_transform.gameObject.transform.localPosition = navball.attitudeGymbal * (reference * navball.VectorUnitScale);
 
             // hide if behind navball
@@ -215,7 +216,6 @@ namespace Trajectories
                 return Vector3d.zero;
 
             double plannedAngleOfAttack = (double) _trajectory.DescentProfile.GetAngleOfAttack(_trajectory.TargetProfile.Body, position, velocity);
-
             return velocity.normalized * Math.Cos(plannedAngleOfAttack) + Vector3d.Cross(vel_right, velocity).normalized * Math.Sin(plannedAngleOfAttack);
         }
 
@@ -225,25 +225,25 @@ namespace Trajectories
                 return Vector2d.zero;
 
             Vector3d? targetPosition = _trajectory.TargetProfile.WorldPosition;
-            CelestialBody body = _trajectory.TargetProfile.Body;
-            if (!targetPosition.HasValue || patch == null || !patch.ImpactPosition.HasValue || patch.StartingState.ReferenceBody != body || !patch.IsAtmospheric)
+            CelestialBody b = _trajectory.TargetProfile.Body;
+            if (!targetPosition.HasValue || patch?.ImpactPosition == null || patch.StartingState.ReferenceBody != b || !patch.IsAtmospheric)
                 return Vector2d.zero;
 
             // Get impact position, or, if some point over the trajectory has not enough clearance, smoothly interpolate to that point depending on how much clearance is missing
             Vector3d impactPosition = patch.ImpactPosition.Value;
             foreach (Trajectory.Point p in patch.AtmosphericTrajectory)
             {
-                double neededClearance = 600.0d;
-                double missingClearance = neededClearance - (p.pos.magnitude - body.Radius - p.groundAltitude);
+                const double neededClearance = 600.0d;
+                double missingClearance = neededClearance - (p.pos.magnitude - b.Radius - p.groundAltitude);
                 if (missingClearance > 0.0d)
                 {
-                    if (Vector3d.Distance(p.pos, patch.RawImpactPosition.Value) > 3000.0d)
+                    if (patch.RawImpactPosition.HasValue && Vector3d.Distance(p.pos, patch.RawImpactPosition.Value) > 3000.0d)
                     {
                         double coeff = missingClearance / neededClearance;
                         Vector3d rotatedPos = p.pos;
                         if (!Settings.BodyFixedMode)
                         {
-                            rotatedPos = Trajectory.CalculateRotatedPosition(body, p.pos, p.time);
+                            rotatedPos = Trajectory.CalculateRotatedPosition(b, p.pos, p.time);
                         }
 
                         impactPosition = impactPosition * (1.0d - coeff) + rotatedPos * coeff;
@@ -253,25 +253,30 @@ namespace Trajectories
                 }
             }
 
-            Vector3d right = Vector3d.Cross(patch.ImpactVelocity.Value, impactPosition).normalized;
-            Vector3d behind = Vector3d.Cross(right, impactPosition).normalized;
+            if (patch.ImpactVelocity != null)
+            {
+                Vector3d right = Vector3d.Cross(patch.ImpactVelocity.Value, impactPosition).normalized;
+                Vector3d behind = Vector3d.Cross(right, impactPosition).normalized;
 
-            Vector3d offset = targetPosition.Value - impactPosition;
-            Vector2d offsetDir = new Vector2d(Vector3d.Dot(right, offset), Vector3d.Dot(behind, offset));
-            offsetDir *= 0.00005d; // 20km <-> 1 <-> 45° (this is purely indicative, no physical meaning, it would be very complicated to compute an actual correction angle as it depends on the spacecraft behavior in the atmosphere ; a small angle will suffice for a plane, but even a big angle might do almost nothing for a rocket)
+                Vector3d offset = targetPosition.Value - impactPosition;
+                Vector2d offsetDir = new Vector2d(Vector3d.Dot(right, offset), Vector3d.Dot(behind, offset));
+                offsetDir *= 0.00005d; // 20km <-> 1 <-> 45° (this is purely indicative, no physical meaning, it would be very complicated to compute an actual correction angle as it depends on the spacecraft behavior in the atmosphere ; a small angle will suffice for a plane, but even a big angle might do almost nothing for a rocket)
 
-            Vector3d pos = _trajectory.AttachedVessel.GetWorldPos3D() - body.position;
-            Vector3d vel = _trajectory.AttachedVessel.obt_velocity - body.getRFrmVel(body.position + pos); // air velocity
+                Vector3d pos = _trajectory.AttachedVessel.GetWorldPos3D() - b.position;
+                Vector3d vel = _trajectory.AttachedVessel.obt_velocity - b.getRFrmVel(b.position + pos); // air velocity
 
-            double plannedAngleOfAttack = (double) _trajectory.DescentProfile.GetAngleOfAttack(body, pos, vel);
-            if (plannedAngleOfAttack < Util.HALF_PI)
-                offsetDir.y = -offsetDir.y; // behavior is different for prograde or retrograde entry
+                double plannedAngleOfAttack = (double) _trajectory.DescentProfile.GetAngleOfAttack(b, pos, vel);
+                if (plannedAngleOfAttack < Util.HALF_PI)
+                    offsetDir.y = -offsetDir.y; // behavior is different for prograde or retrograde entry
 
-            double maxCorrection = 1.0d;
-            offsetDir.x = Util.Clamp(offsetDir.x, -maxCorrection, maxCorrection);
-            offsetDir.y = Util.Clamp(offsetDir.y, -maxCorrection, maxCorrection);
+                const double maxCorrection = 1.0d;
+                offsetDir.x = Util.Clamp(offsetDir.x, -maxCorrection, maxCorrection);
+                offsetDir.y = Util.Clamp(offsetDir.y, -maxCorrection, maxCorrection);
 
-            return offsetDir;
+                return offsetDir;
+            }
+
+            return Vector2d.zero;
         }
     }
 }

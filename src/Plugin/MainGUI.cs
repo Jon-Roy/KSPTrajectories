@@ -122,7 +122,6 @@ namespace Trajectories
         private static DialogGUILabel target_distance_longitude_label;
 
         // display update strings
-        private static readonly string trajectories_title = Localizer.Format("#autoLOC_Trajectories_Title");
         private static readonly string aerodynamic_model_hdrtxt = Localizer.Format("#autoLOC_Trajectories_AeroModel") + ": ";
         private static readonly string calculation_time_hdrtxt = Localizer.Format("#autoLOC_Trajectories_CalcTime") + ": ";
         private static readonly string errors_hdrtxt = Localizer.Format("#autoLOC_Trajectories_Errors") + ": ";
@@ -179,7 +178,7 @@ namespace Trajectories
         private static double update_timer = Util.Clocks;
         private const double update_fps = 10; // Frames per second the data values displayed in the Gui will update.
 
-        internal static string TrajectoriesTitle => trajectories_title;
+        internal static string TrajectoriesTitle { get; } = Localizer.Format("#autoLOC_Trajectories_Title");
 
         /// <summary>
         /// Allocates required resources
@@ -302,36 +301,36 @@ namespace Trajectories
             else
             {
                 // ensure window remains within the screen bounds
-                Vector2 pos = new Vector2((Settings.MainGUIWindowPos.x * Screen.width - Screen.width / 2) * GameSettings.UI_SCALE,
-                    (Settings.MainGUIWindowPos.y * Screen.height - Screen.height / 2) * GameSettings.UI_SCALE);
+                Vector2 pos = new Vector2((Settings.MainGUIWindowPos.x * Screen.width - Screen.width / 2f) * GameSettings.UI_SCALE,
+                    (Settings.MainGUIWindowPos.y * Screen.height - Screen.height / 2f) * GameSettings.UI_SCALE);
 
-                if (pos.x > Screen.width / 2 - border)
+                if (pos.x > Screen.width / 2f - border)
                 {
-                    pos.x = Screen.width / 2 - (border + WIDTH / 2);
+                    pos.x = Screen.width / 2f - (border + WIDTH / 2);
                     adjusted = true;
                 }
-                else if (pos.x < (Screen.width / 2 - border) * -1f)
+                else if (pos.x < (Screen.width / 2f - border) * -1f)
                 {
-                    pos.x = (Screen.width / 2 - (border + WIDTH / 2)) * -1f;
+                    pos.x = (Screen.width / 2f - (border + WIDTH / 2)) * -1f;
                     adjusted = true;
                 }
 
-                if (pos.y > Screen.height / 2 - border)
+                if (pos.y > Screen.height / 2f - border)
                 {
-                    pos.y = Screen.height / 2 - (border + HEIGHT / 2);
+                    pos.y = Screen.height / 2f - (border + HEIGHT / 2);
                     adjusted = true;
                 }
-                else if (pos.y < (Screen.height / 2 - border) * -1f)
+                else if (pos.y < (Screen.height / 2f - border) * -1f)
                 {
-                    pos.y = (Screen.height / 2 - (border + HEIGHT / 2)) * -1f;
+                    pos.y = (Screen.height / 2f - (border + HEIGHT / 2)) * -1f;
                     adjusted = true;
                 }
 
                 if (adjusted)
                 {
                     Settings.MainGUIWindowPos = new Vector2(
-                        (Screen.width / 2 + pos.x / GameSettings.UI_SCALE) / Screen.width,
-                        (Screen.height / 2 + pos.y / GameSettings.UI_SCALE) / Screen.height);
+                        (Screen.width / 2f + pos.x / GameSettings.UI_SCALE) / Screen.width,
+                        (Screen.height / 2f + pos.y / GameSettings.UI_SCALE) / Screen.height);
                 }
             }
 
@@ -356,18 +355,18 @@ namespace Trajectories
             descent_final_textinput = new DialogGUITextInput(descent_final_txt, " ", false, 6, OnTextInput_DescentFinal, 23);
 
             // create data field labels
-            impact_latitude_label = new DialogGUILabel(() => { return impact_latitude_txt; }, 65);
-            impact_longitude_label = new DialogGUILabel(() => { return impact_longitude_txt; }, 65);
-            impact_vertical_label = new DialogGUILabel(() => { return impact_vertical_txt; }, 65);
-            impact_horizontal_label = new DialogGUILabel(() => { return impact_horizontal_txt; }, 65);
-            info_distance_label = new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : target_distance_txt; }, 60);
-            info_distance_latitude_label = new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : target_distance_latitude_txt; }, 80);
-            info_distance_longitude_label = new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : target_distance_longitude_txt; }, 80);
-            target_latitude_label = new DialogGUILabel(() => { return target_latitude_txt; }, 65);
-            target_longitude_label = new DialogGUILabel(() => { return target_longitude_txt; }, 65);
-            target_distance_label = new DialogGUILabel(() => { return target_distance_txt; }, 60);
-            target_distance_latitude_label = new DialogGUILabel(() => { return target_distance_latitude_txt; }, 80);
-            target_distance_longitude_label = new DialogGUILabel(() => { return target_distance_longitude_txt; }, 80);
+            impact_latitude_label = new DialogGUILabel(() => impact_latitude_txt, 65);
+            impact_longitude_label = new DialogGUILabel(() => impact_longitude_txt, 65);
+            impact_vertical_label = new DialogGUILabel(() => impact_vertical_txt, 65);
+            impact_horizontal_label = new DialogGUILabel(() => impact_horizontal_txt, 65);
+            info_distance_label = new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : target_distance_txt, 60);
+            info_distance_latitude_label = new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : target_distance_latitude_txt, 80);
+            info_distance_longitude_label = new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : target_distance_longitude_txt, 80);
+            target_latitude_label = new DialogGUILabel(() => target_latitude_txt, 65);
+            target_longitude_label = new DialogGUILabel(() => target_longitude_txt, 65);
+            target_distance_label = new DialogGUILabel(() => target_distance_txt, 60);
+            target_distance_latitude_label = new DialogGUILabel(() => target_distance_latitude_txt, 80);
+            target_distance_longitude_label = new DialogGUILabel(() => target_distance_longitude_txt, 80);
 
             // set integrator slider pos;
             SetIntegratorSlider();
@@ -375,21 +374,21 @@ namespace Trajectories
             // create pages
             info_page = new DialogGUIVerticalLayout(false, true, 0, new RectOffset(), TextAnchor.UpperCenter,
                 new DialogGUIHorizontalLayout(
-                    new DialogGUIToggle(() => { return Util.IsPatchedConicsAvailable ? Settings.DisplayTrajectories : false; },
+                    new DialogGUIToggle(() => Util.IsPatchedConicsAvailable && Settings.DisplayTrajectories,
                         Localizer.Format("#autoLOC_Trajectories_ShowTrajectory"), OnButtonClick_DisplayTrajectories),
-                    new DialogGUIToggle(() => { return Settings.DisplayTrajectoriesInFlight; },
+                    new DialogGUIToggle(() => Settings.DisplayTrajectoriesInFlight,
                         Localizer.Format("#autoLOC_Trajectories_InFlight"), OnButtonClick_DisplayTrajectoriesInFlight)),
                 new DialogGUIHorizontalLayout(
-                    new DialogGUIToggle(() => { return Settings.BodyFixedMode; },
+                    new DialogGUIToggle(() => Settings.BodyFixedMode,
                         Localizer.Format("#autoLOC_Trajectories_FixedBody"), OnButtonClick_BodyFixedMode),
-                    new DialogGUIToggle(() => { return Settings.DisplayCompleteTrajectory; },
+                    new DialogGUIToggle(() => Settings.DisplayCompleteTrajectory,
                         Localizer.Format("#autoLOC_Trajectories_Complete"), OnButtonClick_DisplayCompleteTrajectory)),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_MaxGforce"), true),
-                    new DialogGUILabel(() => { return max_gforce_txt; })),
+                    new DialogGUILabel(() => max_gforce_txt)),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_ImpactTime"), true),
-                    new DialogGUILabel(() => { return impact_time_txt; })),
+                    new DialogGUILabel(() => impact_time_txt)),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_ImpactPosition"), true),
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_Lat"), LAT_LONG_WIDTH),
@@ -405,7 +404,7 @@ namespace Trajectories
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_Hori"), LAT_LONG_WIDTH),
                     impact_horizontal_label),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
-                    new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : Localizer.Format("#autoLOC_Trajectories_TargetDistance"); }, true),
+                    new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.TargetProfile.Body == null ? "" : Localizer.Format("#autoLOC_Trajectories_TargetDistance"), true),
                     info_distance_label,
                     new DialogGUISpace(2),
                     info_distance_latitude_label,
@@ -416,7 +415,7 @@ namespace Trajectories
             target_page = new DialogGUIVerticalLayout(false, true, 0, new RectOffset(), TextAnchor.UpperCenter,
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_TargetBody"), true),
-                    new DialogGUILabel(() => { return target_body_txt; })),
+                    new DialogGUILabel(() => target_body_txt)),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_TargetPosition"), true),
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_Lat"), LAT_LONG_WIDTH),
@@ -425,7 +424,7 @@ namespace Trajectories
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_Long"), LAT_LONG_WIDTH),
                     target_longitude_label),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleRight,
-                    new DialogGUILabel(() => { return Localizer.Format("#autoLOC_Trajectories_TargetDistance"); }, true),
+                    new DialogGUILabel(() => Localizer.Format("#autoLOC_Trajectories_TargetDistance"), true),
                     target_distance_label,
                     new DialogGUISpace(2),
                     target_distance_latitude_label,
@@ -438,7 +437,7 @@ namespace Trajectories
                         OnButtonClick_TargetImpact, ButtonEnabler_TargetImpact, TARGET_BUTTON_WIDTH, BUTTON_HEIGHT, false),
                     new DialogGUISpace(10),
                     new DialogGUIButton(Localizer.Format("#autoLOC_6002159"),
-                        OnButtonClick_TargetKSC, () => { return true; }, TARGET_BUTTON_WIDTH, BUTTON_HEIGHT, false)),
+                        OnButtonClick_TargetKSC, () => true, TARGET_BUTTON_WIDTH, BUTTON_HEIGHT, false)),
                 new DialogGUIHorizontalLayout(
                     new DialogGUIButton(Localizer.Format("#autoLOC_Trajectories_TargetVessel"),
                         OnButtonClick_TargetVessel, ButtonEnabler_TargetVessel, TARGET_BUTTON_WIDTH, BUTTON_HEIGHT, false),
@@ -466,84 +465,84 @@ namespace Trajectories
                         OnButtonClick_Retrograde, TARGET_BUTTON_WIDTH, BUTTON_HEIGHT, false)),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                     new DialogGUILabel(Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.Name, DESCENT_NAME_WIDTH),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.HorizonText; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.HorizonText,
                         OnButtonClick_EntryHorizon, AOA_BUTTON_WIDTH, BUTTON_HEIGHT, false),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.Retrograde ?? true ? "R" : "P"; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.Retrograde ?? true ? "R" : "P",
                         OnButtonClick_EntryRetrograde, GRADE_BUTTON_WIDTH, BUTTON_HEIGHT, false),
                     new DialogGUISpace(2),
-                    new DialogGUISlider(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.SliderPos ?? 0f; },
+                    new DialogGUISlider(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.SliderPos ?? 0f,
                         -1f, 1f, false, DESCENT_SLIDER_WIDTH, -1, OnSliderSet_EntryAngle),
-                    new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.AngleText; }, 30f),
+                    new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.AtmosEntry.AngleText, 30f),
                     descent_entry_textinput),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                     new DialogGUILabel(Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.Name, DESCENT_NAME_WIDTH),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.HorizonText; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.HorizonText,
                         OnButtonClick_HighHorizon, AOA_BUTTON_WIDTH, BUTTON_HEIGHT, false),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.Retrograde ?? true ? "R" : "P"; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.Retrograde ?? true ? "R" : "P",
                         OnButtonClick_HighRetrograde, GRADE_BUTTON_WIDTH, BUTTON_HEIGHT, false),
                     new DialogGUISpace(2),
-                    new DialogGUISlider(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.SliderPos ?? 0f; },
+                    new DialogGUISlider(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.SliderPos ?? 0f,
                         -1f, 1f, false, DESCENT_SLIDER_WIDTH, -1, OnSliderSet_HighAngle),
-                    new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.AngleText; }, 30f),
+                    new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.HighAltitude.AngleText, 30f),
                     descent_high_textinput),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                     new DialogGUILabel(Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.Name, DESCENT_NAME_WIDTH),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.HorizonText; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.HorizonText,
                         OnButtonClick_LowHorizon, AOA_BUTTON_WIDTH, BUTTON_HEIGHT, false),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.Retrograde ?? true ? "R" : "P"; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.Retrograde ?? true ? "R" : "P",
                         OnButtonClick_LowRetrograde, GRADE_BUTTON_WIDTH, BUTTON_HEIGHT, false),
                     new DialogGUISpace(2),
-                    new DialogGUISlider(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.SliderPos ?? 0f; },
+                    new DialogGUISlider(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.SliderPos ?? 0f,
                         -1f, 1f, false, DESCENT_SLIDER_WIDTH, -1, OnSliderSet_LowAngle),
-                    new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.AngleText; }, 30f),
+                    new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.LowAltitude.AngleText, 30f),
                     descent_low_textinput),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                     new DialogGUILabel(Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.Name, DESCENT_NAME_WIDTH),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.HorizonText; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.HorizonText,
                         OnButtonClick_FinalHorizon, AOA_BUTTON_WIDTH, BUTTON_HEIGHT, false),
-                    new DialogGUIButton(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.Retrograde ?? true ? "R" : "P"; },
+                    new DialogGUIButton(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.Retrograde ?? true ? "R" : "P",
                         OnButtonClick_FinalRetrograde, GRADE_BUTTON_WIDTH, BUTTON_HEIGHT, false),
                     new DialogGUISpace(2),
-                    new DialogGUISlider(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.SliderPos ?? 0f; },
+                    new DialogGUISlider(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.SliderPos ?? 0f,
                         -1f, 1f, false, DESCENT_SLIDER_WIDTH, -1, OnSliderSet_GroundAngle),
-                    new DialogGUILabel(() => { return Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.AngleText; }, 30f),
+                    new DialogGUILabel(() => Trajectories.ActiveVesselTrajectory?.DescentProfile.FinalApproach.AngleText, 30f),
                     descent_final_textinput)
             );
 
             settings_page = new DialogGUIVerticalLayout(false, true, 0, new RectOffset(), TextAnchor.UpperCenter,
-                new DialogGUIToggle(() => { return ToolbarManager.ToolbarAvailable ? Settings.UseBlizzyToolbar : false; },
+                new DialogGUIToggle(() => ToolbarManager.ToolbarAvailable && Settings.UseBlizzyToolbar,
                     Localizer.Format("#autoLOC_Trajectories_UseBlizzyToolbar"), OnButtonClick_UseBlizzyToolbar),
-                new DialogGUIToggle(() => { return Settings.DefaultDescentIsRetro; },
+                new DialogGUIToggle(() => Settings.DefaultDescentIsRetro,
                     Localizer.Format("#autoLOC_Trajectories_DefaultDescent"), OnButtonClick_UseDescentRetro),
                 new DialogGUIHorizontalLayout(false, false, 0, new RectOffset(), TextAnchor.MiddleCenter,
-                    new DialogGUIToggle(() => { return Settings.UseCache; },
+                    new DialogGUIToggle(() => Settings.UseCache,
                         Localizer.Format("#autoLOC_Trajectories_UseCache"), OnButtonClick_UseCache),
-                    new DialogGUIToggle(() => { return Settings.MultiTrajectories; },
+                    new DialogGUIToggle(() => Settings.MultiTrajectories,
                         Localizer.Format("#autoLOC_Trajectories_MultiTrajectories"), OnButtonClick_MultiTrajectories),
-                    new DialogGUIToggle(() => { return Settings.AutoUpdateAerodynamicModel; },
+                    new DialogGUIToggle(() => Settings.AutoUpdateAerodynamicModel,
                         Localizer.Format("#autoLOC_Trajectories_AutoUpdate"), OnButtonClick_AutoUpdateAerodynamicModel),
                     new DialogGUIButton(Localizer.Format("#autoLOC_Trajectories_Update"),
                         OnButtonClick_Update, BUTTON_WIDTH, BUTTON_HEIGHT, false)),
                 new DialogGUIHorizontalLayout(
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_MaxPatches"), true),
-                    new DialogGUISlider(() => { return Settings.MaxPatchCount; },
+                    new DialogGUISlider(() => Settings.MaxPatchCount,
                         3f, 10f, true, SETTINGS_SLIDER_WIDTH + 10f, -1, OnSliderSet_MaxPatches),
-                    new DialogGUILabel(() => { return Settings.MaxPatchCount.ToString(); }, 25f)),
+                    new DialogGUILabel(() => Settings.MaxPatchCount.ToString(), 25f)),
                 new DialogGUIHorizontalLayout(
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_MaxFramesPatch"), true),
-                    new DialogGUISlider(() => { return Settings.MaxFramesPerPatch; },
+                    new DialogGUISlider(() => Settings.MaxFramesPerPatch,
                         1f, 50f, true, SETTINGS_SLIDER_WIDTH + 10f, -1, OnSliderSet_MaxFramesPatch),
-                    new DialogGUILabel(() => { return Settings.MaxFramesPerPatch.ToString(); }, 25f)),
+                    new DialogGUILabel(() => Settings.MaxFramesPerPatch.ToString(), 25f)),
                 new DialogGUIHorizontalLayout(
                     new DialogGUILabel(Localizer.Format("#autoLOC_Trajectories_IntegrationStep"), true),
-                    new DialogGUISlider(() => { return IntegratorSliderPos; },
+                    new DialogGUISlider(() => IntegratorSliderPos,
                         INTEGRATOR_SLIDERMIN, INTEGRATOR_SLIDERMAX, false, SETTINGS_SLIDER_WIDTH + 10f, -1, OnSliderSet_IntegrationStep),
-                    new DialogGUILabel(() => { return Settings.IntegrationStepSize.ToString("F2"); }, 25f)),
+                    new DialogGUILabel(() => Settings.IntegrationStepSize.ToString("F2"), 25f)),
                 new DialogGUIHorizontalLayout(
-                    new DialogGUILabel(() => { return calculation_time_txt; }, true),
-                    new DialogGUILabel(() => { return num_errors_txt; }, true)),
+                    new DialogGUILabel(() => calculation_time_txt, true),
+                    new DialogGUILabel(() => num_errors_txt, true)),
                 new DialogGUIHorizontalLayout(true, false, 0, new RectOffset(), TextAnchor.MiddleCenter,
-                    new DialogGUILabel(() => { return aerodynamic_model_txt; }, true))
+                    new DialogGUILabel(() => aerodynamic_model_txt, true))
             );
 
             // create page box with current page inserted into page box
@@ -591,8 +590,8 @@ namespace Trajectories
             if (popup_dialog != null)
             {
                 Settings.MainGUIWindowPos = new Vector2(
-                    (Screen.width / 2 + popup_dialog.RTrf.position.x / GameSettings.UI_SCALE) / Screen.width,
-                    (Screen.height / 2 + popup_dialog.RTrf.position.y / GameSettings.UI_SCALE) / Screen.height);
+                    (Screen.width / 2f + popup_dialog.RTrf.position.x / GameSettings.UI_SCALE) / Screen.width,
+                    (Screen.height / 2f + popup_dialog.RTrf.position.y / GameSettings.UI_SCALE) / Screen.height);
                 //Util.DebugLog("Saving MainGUI window position as {0}", Settings.MainGUIWindowPos.ToString("F4"));
                 multi_dialog.dialogRect.Set(Settings.MainGUIWindowPos.x, Settings.MainGUIWindowPos.y, WIDTH, HEIGHT);
             }
@@ -756,7 +755,7 @@ namespace Trajectories
             // grab the last patch that was calculated
             Trajectory.Patch lastPatch = Trajectories.ActiveVesselTrajectory.Patches.LastOrDefault();
 
-            if (lastPatch != null && lastPatch.ImpactPosition.HasValue)
+            if (lastPatch?.ImpactPosition != null)
                 return true;
             return false;
         }
@@ -773,7 +772,8 @@ namespace Trajectories
 
         private static bool ButtonEnabler_TargetWaypoint()
         {
-            if (Trajectories.ActiveVesselTrajectory.AttachedVessel?.navigationWaypoint != null)
+            if (Trajectories.ActiveVesselTrajectory.AttachedVessel != null &&
+                Trajectories.ActiveVesselTrajectory.AttachedVessel.navigationWaypoint != null)
                 return true;
             return false;
         }
@@ -911,7 +911,7 @@ namespace Trajectories
             // grab the last patch that was calculated
             Trajectory.Patch lastPatch = Trajectories.ActiveVesselTrajectory.Patches.LastOrDefault();
 
-            if (lastPatch != null && lastPatch.ImpactPosition.HasValue)
+            if (lastPatch?.ImpactPosition != null)
             {
                 Trajectories.ActiveVesselTrajectory.TargetProfile.SetFromWorldPos(lastPatch.StartingState.ReferenceBody, lastPatch.ImpactPosition.Value);
                 ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_Trajectories_TargetingImpact"));
@@ -944,28 +944,25 @@ namespace Trajectories
         private static void OnButtonClick_TargetWaypoint()
         {
             // grab the currently selected waypoint
-            Waypoint navigationWaypoint = Trajectories.ActiveVesselTrajectory.AttachedVessel?.navigationWaypoint;
-
-            if (navigationWaypoint != null)
+            if (Trajectories.ActiveVesselTrajectory.AttachedVessel != null)
             {
-                Trajectories.ActiveVesselTrajectory.TargetProfile.SetFromLatLonAlt(navigationWaypoint.celestialBody,
-                    navigationWaypoint.latitude, navigationWaypoint.longitude, navigationWaypoint.altitude);
-                ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_Trajectories_TargetingWaypoint", navigationWaypoint.name));
+                Waypoint navigationWaypoint = Trajectories.ActiveVesselTrajectory.AttachedVessel.navigationWaypoint;
+                if (navigationWaypoint != null)
+                {
+                    Trajectories.ActiveVesselTrajectory.TargetProfile.SetFromLatLonAlt(navigationWaypoint.celestialBody,
+                        navigationWaypoint.latitude, navigationWaypoint.longitude, navigationWaypoint.altitude);
+                    ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_Trajectories_TargetingWaypoint", navigationWaypoint.name));
+                }
             }
         }
 
         private static void OnButtonClick_TargetManual()
         {
             CelestialBody body = FlightGlobals.currentMainBody;
-
             string[] latLng = Trajectories.ActiveVesselTrajectory.TargetProfile.ManualText.Split(',', ';');
-
             if (latLng.Length == 2 && body != null)
             {
-                double lat;
-                double lng;
-
-                if (double.TryParse(latLng[0].Trim(), out lat) && double.TryParse(latLng[1].Trim(), out lng))
+                if (double.TryParse(latLng[0].Trim(), out var lat) && double.TryParse(latLng[1].Trim(), out var lng))
                 {
                     Trajectories.ActiveVesselTrajectory.TargetProfile.SetFromLatLonAlt(body, lat, lng);
                     ScreenMessages.PostScreenMessage(Localizer.Format("#autoLOC_Trajectories_TargetingManual"));
@@ -980,13 +977,7 @@ namespace Trajectories
             string[] latLng = inString.Split(',', ';');
             if (latLng.Length == 2)
             {
-                latLng[0].Trim();
-                latLng[1].Trim();
-
-                double lat;
-                double lng;
-
-                if (double.TryParse(latLng[0], out lat) && double.TryParse(latLng[1], out lng))
+                if (double.TryParse(latLng[0], out _) && double.TryParse(latLng[1], out _))
                 {
                     manual_target_txt = latLng[0] + " , " + latLng[1];
                     manual_target_txt_changed = true;
@@ -1013,19 +1004,8 @@ namespace Trajectories
         private static string OnTextInput_DescentEntry(string inString)
         {
             string trimmed = inString.Trim();
-            float angle;
-
-            if (float.TryParse(inString, out angle))
-            {
-                descent_entry_txt = trimmed;
-            }
-            else
-            {
-                descent_entry_txt = inString;
-            }
-
+            descent_entry_txt = float.TryParse(inString, out var angle) ? trimmed : inString;
             descent_entry_textinput.text = descent_entry_txt;
-
             if (Math.Abs(angle) <= 180f)
             {
                 Trajectories.ActiveVesselTrajectory.DescentProfile.AtmosEntry.AngleDeg = angle;
@@ -1039,17 +1019,8 @@ namespace Trajectories
         private static string OnTextInput_DescentHigh(string inString)
         {
             string trimmed = inString.Trim();
-            float angle;
 
-            if (float.TryParse(inString, out angle))
-            {
-                descent_high_txt = trimmed;
-            }
-            else
-            {
-                descent_high_txt = inString;
-            }
-
+            descent_high_txt = float.TryParse(inString, out var angle) ? trimmed : inString;
             descent_high_textinput.text = descent_high_txt;
 
             if (Math.Abs(angle) <= 180f)
@@ -1065,17 +1036,8 @@ namespace Trajectories
         private static string OnTextInput_DescentLow(string inString)
         {
             string trimmed = inString.Trim();
-            float angle;
 
-            if (float.TryParse(inString, out angle))
-            {
-                descent_low_txt = trimmed;
-            }
-            else
-            {
-                descent_low_txt = inString;
-            }
-
+            descent_low_txt = float.TryParse(inString, out var angle) ? trimmed : inString;
             descent_low_textinput.text = descent_low_txt;
 
             if (Math.Abs(angle) <= 180f)
@@ -1091,17 +1053,8 @@ namespace Trajectories
         private static string OnTextInput_DescentFinal(string inString)
         {
             string trimmed = inString.Trim();
-            float angle;
 
-            if (float.TryParse(inString, out angle))
-            {
-                descent_final_txt = trimmed;
-            }
-            else
-            {
-                descent_final_txt = inString;
-            }
-
+            descent_final_txt = float.TryParse(inString, out var angle) ? trimmed : inString;
             descent_final_textinput.text = descent_final_txt;
 
             if (Math.Abs(angle) <= 180f)
@@ -1234,7 +1187,7 @@ namespace Trajectories
             max_gforce_txt = string.Format("{0:0.00}", Settings.DisplayTrajectories ? Trajectories.ActiveVesselTrajectory.MaxAccel / 9.81 : 0);
 
             // impact values
-            if (lastPatch != null && lastPatch.ImpactPosition.HasValue && Settings.DisplayTrajectories)
+            if (lastPatch?.ImpactPosition != null && Settings.DisplayTrajectories)
             {
                 // calculate body offset impact position
                 CelestialBody lastPatchBody = lastPatch.StartingState.ReferenceBody;
@@ -1246,12 +1199,15 @@ namespace Trajectories
 
                 // impact velocity
                 Vector3d up = lastPatch.ImpactPosition.Value.normalized;
-                Vector3d vel = lastPatch.ImpactVelocity.Value - lastPatchBody.getRFrmVel(impactPos);
-                double vVelMag = Vector3d.Dot(vel, up);
-                double hVelMag = (vel - up * vVelMag).magnitude;
+                if (lastPatch.ImpactVelocity != null)
+                {
+                    Vector3d vel = lastPatch.ImpactVelocity.Value - lastPatchBody.getRFrmVel(impactPos);
+                    double vVelMag = Vector3d.Dot(vel, up);
+                    double hVelMag = (vel - up * vVelMag).magnitude;
 
-                impact_vertical_txt = string.Format("{0:F1} {1}", -vVelMag, Localizer.Format("#autoLOC_Trajectories_ms"));
-                impact_horizontal_txt = string.Format("{0:F1} {1}", hVelMag, Localizer.Format("#autoLOC_Trajectories_ms"));
+                    impact_vertical_txt = string.Format("{0:F1} {1}", -vVelMag, Localizer.Format("#autoLOC_Trajectories_ms"));
+                    impact_horizontal_txt = string.Format("{0:F1} {1}", hVelMag, Localizer.Format("#autoLOC_Trajectories_ms"));
+                }
 
                 // time to impact
                 double duration = (lastPatch.EndTime - Planetarium.GetUniversalTime()) / 3600.0; // duration in hrs
@@ -1276,8 +1232,6 @@ namespace Trajectories
         /// <summary> Updates the strings used by the target page to display changing values/data </summary>
         private static void UpdateTargetPage()
         {
-            // grab the last patch that was calculated
-            Trajectory.Patch lastPatch = Trajectories.ActiveVesselTrajectory.Patches.LastOrDefault();
             CelestialBody targetBody = Trajectories.ActiveVesselTrajectory.TargetProfile.Body;
 
             // target position and distance values
@@ -1343,8 +1297,7 @@ namespace Trajectories
                 Vector3d targetPos = Trajectories.ActiveVesselTrajectory.TargetProfile.WorldPosition.Value + targetBody.position;
 
                 // target distance values
-                if (lastPatch != null && lastPatch.ImpactPosition.HasValue && lastPatchBody == targetBody &&
-                    Settings.DisplayTrajectories)
+                if (lastPatch?.ImpactPosition != null && lastPatchBody == targetBody && Settings.DisplayTrajectories)
                 {
                     // calculate body offset impact position
                     Vector3d impactPos = lastPatch.ImpactPosition.Value + lastPatchBody.position;

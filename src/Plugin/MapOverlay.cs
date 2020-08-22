@@ -52,18 +52,6 @@ namespace Trajectories
             /// </summary>
             internal bool Visible
             {
-                get
-                {
-                    if (meshes != null)
-                    {
-                        bool visible = true;
-
-                        foreach (GameObject mesh in meshes)
-                            visible &= mesh.GetComponent<MeshRenderer>().enabled;
-                        return visible & enabled;
-                    }
-                    return false;
-                }
                 set
                 {
                     if (meshes != null)

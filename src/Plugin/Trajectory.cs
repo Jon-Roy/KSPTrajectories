@@ -164,10 +164,6 @@ namespace Trajectories
             Util.DebugLog("Constructing");
         }
 
-#if DEBUG_TELEMETRY
-            ConstructTelemetry();
-#endif
-
         internal void Destroy()
         {
             Util.DebugLog("");
@@ -197,167 +193,6 @@ namespace Trajectories
             MapOverlay.Update();
             NavBallOverlay.Update();
         }
-
-#if DEBUG_TELEMETRY
-        internal void ConstructTelemetry()
-        {
-            // Add telemetry channels for real and predicted variable values
-            Telemetry.AddChannel<double>("ut");
-            Telemetry.AddChannel<double>("altitude");
-            Telemetry.AddChannel<double>("airspeed");
-            Telemetry.AddChannel<double>("aoa");
-            Telemetry.AddChannel<float>("drag");
-
-            Telemetry.AddChannel<double>("density");
-            Telemetry.AddChannel<double>("density_calc");
-            Telemetry.AddChannel<double>("density_calc_precise");
-
-            Telemetry.AddChannel<double>("temperature");
-            Telemetry.AddChannel<double>("temperature_calc");
-
-            Telemetry.AddChannel<double>("force_actual");
-            Telemetry.AddChannel<double>("force_actual.x");
-            Telemetry.AddChannel<double>("force_actual.y");
-            Telemetry.AddChannel<double>("force_actual.z");
-            //Telemetry.AddChannel<double>("force_total");
-            Telemetry.AddChannel<double>("force_predicted");
-            Telemetry.AddChannel<double>("force_predicted.x");
-            Telemetry.AddChannel<double>("force_predicted.y");
-            Telemetry.AddChannel<double>("force_predicted.z");
-            Telemetry.AddChannel<double>("force_predicted_cache");
-            //Telemetry.AddChannel<double>("force_reference");
-        }
-
-        private static Vector3d PreviousFramePos;
-        private static Vector3d PreviousFrameVelocity;
-        private static double PreviousFrameTime = 0;
-
-        internal static void DebugTelemetry()
-        {
-            if (!Util.IsFlight)
-                return;
-
-            double now = Planetarium.GetUniversalTime();
-            double dt = now - PreviousFrameTime;
-
-            if (dt > 0.5 || dt < 0.0)
-            {
-                Vector3d bodySpacePosition = new Vector3d();
-                Vector3d bodySpaceVelocity = new Vector3d();
-
-                if (aerodynamicModel_ != null && Trajectories.IsVesselAttached)
-                {
-                    CelestialBody body = Trajectories.AttachedVessel.orbit.referenceBody;
-
-                    bodySpacePosition = Trajectories.AttachedVessel.GetWorldPos3D() - body.position;
-                    bodySpaceVelocity = Trajectories.AttachedVessel.obt_velocity;
-
-                    double altitudeAboveSea = bodySpacePosition.magnitude - body.Radius;
-
-                    Vector3d airVelocity = bodySpaceVelocity - body.getRFrmVel(body.position + bodySpacePosition);
-
-                    double R = PreviousFramePos.magnitude;
-                    Vector3d gravityForce = PreviousFramePos * (-body.gravParameter / (R * R * R) * Trajectories.AttachedVessel.totalMass);
-
-                    Quaternion inverseRotationFix = body.inverseRotation ?
-                        Quaternion.AngleAxis((float)(body.angularVelocity.magnitude / Math.PI * 180.0 * dt), Vector3.up)
-                        : Quaternion.identity;
-                    Vector3d TotalForce = (bodySpaceVelocity - inverseRotationFix * PreviousFrameVelocity) * (Trajectories.AttachedVessel.totalMass / dt);
-                    TotalForce += bodySpaceVelocity * (dt * 0.000015); // numeric precision fix
-                    Vector3d ActualForce = TotalForce - gravityForce;
-
-                    Transform vesselTransform = Trajectories.AttachedVessel.ReferenceTransform;
-                    Vector3d vesselBackward = (Vector3d)(-vesselTransform.up.normalized);
-                    Vector3d vesselForward = -vesselBackward;
-                    Vector3d vesselUp = (Vector3d)(-vesselTransform.forward.normalized);
-                    Vector3d vesselRight = Vector3d.Cross(vesselUp, vesselBackward).normalized;
-                    double AoA = Math.Acos(Vector3d.Dot(airVelocity.normalized, vesselForward.normalized));
-                    if (Vector3d.Dot(airVelocity, vesselUp) > 0)
-                        AoA = -AoA;
-
-                    VesselAerodynamicModel.DebugParts = true;
-                    Vector3d referenceForce = aerodynamicModel_.ComputeForces(20000, new Vector3d(0, 0, 1500), new Vector3d(0, 1, 0), 0);
-                    VesselAerodynamicModel.DebugParts = false;
-
-                    Vector3d predictedForce = aerodynamicModel_.ComputeForces(altitudeAboveSea, airVelocity, vesselUp, AoA);
-                    //VesselAerodynamicModel.Verbose = true;
-                    Vector3d predictedForceWithCache = aerodynamicModel_.GetForces(body, bodySpacePosition, airVelocity, AoA);
-                    //VesselAerodynamicModel.Verbose = false;
-
-                    Vector3d localTotalForce = new Vector3d(
-                        Vector3d.Dot(TotalForce, vesselRight),
-                        Vector3d.Dot(TotalForce, vesselUp),
-                        Vector3d.Dot(TotalForce, vesselBackward));
-                    Vector3d localActualForce = new Vector3d(
-                        Vector3d.Dot(ActualForce, vesselRight),
-                        Vector3d.Dot(ActualForce, vesselUp),
-                        Vector3d.Dot(ActualForce, vesselBackward));
-                    Vector3d localPredictedForce = new Vector3d(
-                        Vector3d.Dot(predictedForce, vesselRight),
-                        Vector3d.Dot(predictedForce, vesselUp),
-                        Vector3d.Dot(predictedForce, vesselBackward));
-                    Vector3d localPredictedForceWithCache = new Vector3d(
-                        Vector3d.Dot(predictedForceWithCache, vesselRight),
-                        Vector3d.Dot(predictedForceWithCache, vesselUp),
-                        Vector3d.Dot(predictedForceWithCache, vesselBackward));
-
-                    Telemetry.Send("ut", now);
-                    Telemetry.Send("altitude", Trajectories.AttachedVessel.altitude);
-
-                    Telemetry.Send("airspeed", Math.Floor(airVelocity.magnitude));
-                    Telemetry.Send("aoa", (AoA * 180.0 / Math.PI));
-
-                    Telemetry.Send("force_actual", localActualForce.magnitude);
-                    Telemetry.Send("force_actual.x", localActualForce.x);
-                    Telemetry.Send("force_actual.y", localActualForce.y);
-                    Telemetry.Send("force_actual.z", localActualForce.z);
-
-
-                    //Telemetry.Send("force_total", localTotalForce.magnitude);
-                    //Telemetry.Send("force_total.x", localTotalForce.x);
-                    //Telemetry.Send("force_total.y", localTotalForce.y);
-                    //Telemetry.Send("force_total.z", localTotalForce.z);
-
-                    Telemetry.Send("force_predicted", localPredictedForce.magnitude);
-                    Telemetry.Send("force_predicted.x", localPredictedForce.x);
-                    Telemetry.Send("force_predicted.y", localPredictedForce.y);
-                    Telemetry.Send("force_predicted.z", localPredictedForce.z);
-
-                    Telemetry.Send("force_predicted_cache", localPredictedForceWithCache.magnitude);
-                    //Telemetry.Send("force_predicted_cache.x", localPredictedForceWithCache.x);
-                    //Telemetry.Send("force_predicted_cache.y", localPredictedForceWithCache.y);
-                    //Telemetry.Send("force_predicted_cache.z", localPredictedForceWithCache.z);
-
-                    //Telemetry.Send("force_reference", referenceForce.magnitude);
-                    //Telemetry.Send("force_reference.x", referenceForce.x);
-                    //Telemetry.Send("force_reference.y", referenceForce.y);
-                    //Telemetry.Send("force_reference.z", referenceForce.z);
-
-                    //Telemetry.Send("velocity.x", bodySpaceVelocity.x);
-                    //Telemetry.Send("velocity.y", bodySpaceVelocity.y);
-                    //Telemetry.Send("velocity.z", bodySpaceVelocity.z);
-
-                    //Vector3d velocity_pos = (bodySpacePosition - PreviousFramePos) / dt;
-                    //Telemetry.Send("velocity_pos.x", velocity_pos.x);
-                    //Telemetry.Send("velocity_pos.y", velocity_pos.y);
-                    //Telemetry.Send("velocity_pos.z", velocity_pos.z);
-
-                    Telemetry.Send("drag", Trajectories.AttachedVessel.rootPart.rb.drag);
-
-                    Telemetry.Send("density", Trajectories.AttachedVessel.atmDensity);
-                    Telemetry.Send("density_calc", StockAeroUtil.GetDensity(altitudeAboveSea, body));
-                    Telemetry.Send("density_calc_precise", StockAeroUtil.GetDensity(Trajectories.AttachedVessel.GetWorldPos3D(), body));
-
-                    Telemetry.Send("temperature", Trajectories.AttachedVessel.atmosphericTemperature);
-                    Telemetry.Send("temperature_calc", StockAeroUtil.GetTemperature(Trajectories.AttachedVessel.GetWorldPos3D(), body));
-                }
-
-                PreviousFrameVelocity = bodySpaceVelocity;
-                PreviousFramePos = bodySpacePosition;
-                PreviousFrameTime = now;
-            }
-        }
-#endif
 
         internal void InvalidateAerodynamicModel() => aerodynamicModel_.Invalidate();
 
@@ -545,30 +380,6 @@ namespace Trajectories
         {
             internal Vector3d position;
             internal Vector3d velocity;
-        }
-
-        /// <summary>
-        /// Integration step function for Verlet integration
-        /// </summary>
-        /// <param name="state">Position+Velocity of the current time step</param>
-        /// <param name="accelerationFunc">Functor that returns the acceleration for a given Position+Velocity</param>
-        /// <param name="dt">Time step interval</param>
-        /// <param name="accel">Stores the value of the accelerationFunc at the current time step</param>
-        /// <returns></returns>
-        private static SimulationState VerletStep(SimulationState state, Func<Vector3d, Vector3d, Vector3d> accelerationFunc, double dt, out Vector3d accel)
-        {
-            Profiler.Start("accelerationFunc outside");
-            accel = accelerationFunc(state.position, state.velocity);
-            Profiler.Stop("accelerationFunc outside");
-
-            Vector3d prevPos = state.position - dt * state.velocity;
-
-            SimulationState nextState;
-
-            nextState.position = 2.0 * state.position - prevPos + accel * (dt * dt);
-            nextState.velocity = (nextState.position - state.position) / dt;
-
-            return nextState;
         }
 
         /// <summary>

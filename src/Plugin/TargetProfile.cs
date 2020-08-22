@@ -36,8 +36,8 @@ namespace Trajectories
         internal Vector3d? WorldPosition
         {
             // A transform that has double precision would be nice so we can have target precision in meter's
-            get => LocalPosition.HasValue ? Body?.transform.TransformDirection(LocalPosition.Value) : null;
-            set => LocalPosition = value.HasValue ? Body?.transform.InverseTransformDirection(value.Value) : null;
+            get => Body != null && LocalPosition.HasValue ? (Vector3d?)Body.transform.TransformDirection(LocalPosition.Value) : null;
+            set => LocalPosition = Body != null && value.HasValue ? (Vector3d?) Body.transform.InverseTransformDirection(value.Value) : null;
         }
 
         /// <summary> The targets position in LocalSpace relative to the target body </summary>

@@ -133,9 +133,6 @@ namespace Trajectories
             private const float MAX_SIZE = 2e3f;
             private const float DIST_DIV = 50f;
 
-            private double latitude;
-            private double longitude;
-            private double altitude;
             private Vector3 screen_point;
             private float size;
 
@@ -149,7 +146,7 @@ namespace Trajectories
                     return;
 
                 // get impact position, translate to latitude and longitude
-                Body.GetLatLonAlt(Position.Value, out latitude, out longitude, out altitude);
+                Body.GetLatLonAlt(Position.Value, out var latitude, out var longitude, out _);
                 // only draw if visible on the camera
                 screen_point = FlightCamera.fetch.mainCamera.WorldToViewportPoint(Position.Value);
                 if (!(screen_point.z >= 0 && screen_point.x >= 0 && screen_point.x <= 1 && screen_point.y >= 0 && screen_point.y <= 1))

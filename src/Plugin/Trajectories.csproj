@@ -126,7 +126,6 @@
     <Compile Include="Utilities\DebugFastStart.cs" />
     <Compile Include="Utilities\Watcher.cs" />
     <Compile Include="Utilities\Profiler.cs" />
-    <Compile Include="Utilities\TelemetryWrapper.cs" />
     <Compile Include="Utilities\TrajectoriesDebug.cs" />
     <Compile Include="DescentProfile.cs" />
     <Compile Include="MainGUI.cs" />

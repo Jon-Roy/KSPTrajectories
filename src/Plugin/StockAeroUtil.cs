@@ -92,8 +92,8 @@ namespace Trajectories
             double pressure = body.GetPressure(altitude);
 
             // get an average day/night temperature at the equator
-            double sunDot = 0.5;
-            float sunAxialDot = 0;
+            const double sunDot = 0.5;
+            const float sunAxialDot = 0;
             double atmosphereTemperatureOffset = body.latitudeTemperatureBiasCurve.Evaluate(0)
                                                  + body.latitudeTemperatureSunMultCurve.Evaluate(0) * sunDot
                                                  + body.axialTemperatureSunMultCurve.Evaluate(sunAxialDot);
